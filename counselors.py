@@ -25,7 +25,8 @@ hs4 = os.environ.get('WHS_GUIDANCE_4')
 hs5 = os.environ.get('WHS_GUIDANCE_5')
 wms = os.environ.get('WMS_GUIDANCE')
 mms = os.environ.get('MMS_GUIDANCE')
-
+hsdean1 = os.environ.get('WHS_DEAN_1')
+hsdean2 = os.environ.get('WHS_DEAN_2')
 
 # debug so we can see where oracle is trying to connect to/with
 print("Username: " + str(un) + " |Password: " + str(pw) + " |Server: " + str(cs))
@@ -40,7 +41,7 @@ with oracledb.connect(user=un, password=pw, dsn=cs) as con:
                 print("Connection established: " + con.version)
                 print("Connection established: " + con.version, file=outputLog)
 
-                cur.execute('SELECT students.student_number, students.last_name, students.grade_level, students.enroll_status, u_studentsuserfields.custom_counselor, students.schoolid FROM students LEFT JOIN u_studentsuserfields ON students.dcid = u_studentsuserfields.studentsdcid ORDER BY students.grade_level DESC')
+                cur.execute('SELECT students.student_number, students.last_name, students.grade_level, students.enroll_status, u_studentsuserfields.custom_counselor,  u_studentsuserfields.custom_deans_house, students.schoolid FROM students LEFT JOIN u_studentsuserfields ON students.dcid = u_studentsuserfields.studentsdcid ORDER BY students.grade_level DESC')
                 rows = cur.fetchall()
                 for count, student in enumerate(rows):
                     try:
@@ -53,30 +54,38 @@ with oracledb.connect(user=un, password=pw, dsn=cs) as con:
                         grade = int(student[2])
                         enroll = int(student[3])
                         currentCounselor = str(student[4]) if student[4] else ''
-                        school = int(student[5])
+                        currentDean = str(student[5]) if student[5] else ''
+                        school = int(student[6])
                         if (grade > 8 and grade < 13) and enroll == 0:
                             print(str(stuID) + ': ' + last + ' is in grade ' + str(grade) + ' and active, will process', file=outputLog) # debug
 
                             if (last[0] < 'd'):  # A-C last names
                                 counselor = hs1
+                                dean = hsdean1
                                 print('Student has name between A-C', file=outputLog)
                             elif (last[0] == 'd'):  # if they are D, we need to check next letter as Da-Dh is one while Di-Dz is another
                                 counselor = hs1 if (last[1] < 'i') else hs2  # check second letter
+                                dean = hsdean1
                                 print('Student has name starting with D, finding correct counselor based on second letter - ' + last[1], file=outputLog)
                             elif (last[0] < 'i'):  # E-H
                                 counselor = hs2
+                                dean = hsdean1
                                 print('Student has name between E-H', file=outputLog)
                             elif (last[0] < 'm'):  # I-L
                                 counselor = hs3
+                                dean = hsdean1
                                 print('Student has name between I-L', file=outputLog)
                             elif (last[0] == 'm'):  # same situation as D, M is split
                                 counselor = hs3 if (last[1] < 'd') else hs4
+                                dean = hsdean2
                                 print('Student has name starting with M, finding correct counselor based on second letter - ' + last[1], file=outputLog)
                             elif (last[0] < 's'):  # N-R
                                 counselor = hs4
+                                dean = hsdean2
                                 print('Student has name between N-R', file=outputLog)
                             elif (last[0] <= 'z'):  # S-Z
                                 counselor = hs5
+                                dean = hsdean2
                                 print('Student has name between S-Z', file=outputLog)
                             else:  # just in case we get through all possible
                                 counselor = 'ERROR'
@@ -86,13 +95,17 @@ with oracledb.connect(user=un, password=pw, dsn=cs) as con:
                         elif (school == 1003 or school == 1004) and enroll == 0: # if they are a middle schooler they all have the same counselor per building
                             print(str(stuID) + ': ' + last + ' is in grade ' + str(grade) + ' at building ' + str(school) + ' and active, will process', file=outputLog) # debug
                             counselor = wms if school == 1003 else mms
+                            dean = ''
                             print(str(stuID) + ': ' + counselor, file=outputLog)
                         else:
                             print(str(stuID) + ' has a grade level of ' + str(grade) + ' at school ' + str(school) + ' and enroll of ' + str(enroll) + ' so they will be set to blank', file=outputLog)
                             counselor = ''
+                            dean = ''
                         if enroll == 0 and (counselor != currentCounselor and currentCounselor != ''):
                             print(str(stuID) + ': Difference in current vs new counselor:' + currentCounselor + ' vs ' + counselor, file=outputLog)
-                        print(str(stuID) + '\t' + counselor, file=output)
+                        if enroll == 0 and (dean != currentDean and currentDean != ''):
+                            print(str(stuID) + ': Difference in current vs new dean:' + currentDean + ' vs ' + dean, file=outputLog)
+                        print(str(stuID) + '\t' + counselor + '\t' + dean, file=output)
                     except Exception as er:
                         print('Error on ' + str(student[0]) + ': ' + str(er))
                         
