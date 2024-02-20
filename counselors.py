@@ -1,3 +1,15 @@
+"""Script to find the student services workers assigned for each student based on school and name and output to a file for import into PowerSchool.
+
+https://github.com/Philip-Greyson/D118-PS-Counselor-Population
+
+Goes through every student in PowerSchool, checks their grade and school assignment, for high schoolers finds counselors, deans, and social workers based on last name.
+For middle schoolers assignes the correct student services per building. Blanks out any inactive or elementary student.
+Outputs the data to a .txt file then takes that file and uploads it to our local SFTP server in order to be imported into PowerSchool.
+
+needs oracledb: pip install oracledb --upgrade
+needs pysftp: pip install pysftp --upgrade
+"""
+
 # importing module
 import datetime  # used to get current date for course info
 import os  # needed to get environement variables
@@ -72,6 +84,7 @@ if __name__ == '__main__':  # main file execution
                                 dean = ''  # reset to blank for each student just in case so output does not carry over between students
                                 social = ''  # reset to blank for each student just in case so output does not carry over between students
                                 psych = ''  # reset to blank for each student just in case so output does not carry over between students
+                                changed = False  # boolean to represent whether we need to include this student in the output because anything has changed
                                 if grade in range(9,13) and enroll == 0:  # process high schoolers
                                     print(f'DBUG: {stuID}: {last} is in grade {grade} and active, will process as a high schooler')
                                     # print(f'DBUG: {stuID}: {last} is in grade {grade} and active, will process as a high schooler', file=log)
@@ -136,22 +149,31 @@ if __name__ == '__main__':  # main file execution
                                     psych = ''
                                 print(f'DBUG: {stuID} in grade {grade} at school {school}- Counselor: {counselor} | Dean: {dean} | Social Worker: {social} | Psychologist: {psych}', file=log)  # debug
 
-                                # check to see if their counselor, dean, psychologist or social worker changed from the current just as a sanity check and for warning purposes
-                                if enroll == 0 and (counselor != currentCounselor and currentCounselor != ''):
-                                    print(f'WARN: {stuID} is changing from the counselor of {currentCounselor} to {counselor}')
-                                    print(f'WARN: {stuID} is changing from the counselor of {currentCounselor} to {counselor}', file=log)
-                                if enroll == 0 and (dean != currentDean and currentDean != ''):
-                                    print(f'WARN: {stuID} is changing from the dean of {currentDean} to {dean}')
-                                    print(f'WARN: {stuID} is changing from the dean of {currentDean} to {dean}', file=log)
-                                if enroll == 0 and (social != currentSocial and currentSocial != ''):
-                                    print(f'WARN: {stuID} is changing from the social worker of {currentSocial} to {social}')
-                                    print(f'WARN: {stuID} is changing from the social worker of {currentSocial} to {social}', file=log)
-                                if enroll == 0 and (psych != currentPsych and currentPsych != ''):
-                                    print(f'WARN: {stuID} is changing from the psychologist of {currentPsych} to {psych}')
-                                    print(f'WARN: {stuID} is changing from the psychologist of {currentPsych} to {psych}', file=log)
+                                # check to see if their counselor, dean, psychologist or social worker changed from the current value, warn if they are changing from other values and are enrolled as a sanity check
+                                if counselor != currentCounselor:
+                                    changed = True
+                                    if enroll == 0 and currentCounselor != '':
+                                        print(f'WARN: {stuID} is changing from the counselor of {currentCounselor} to {counselor}')
+                                        print(f'WARN: {stuID} is changing from the counselor of {currentCounselor} to {counselor}', file=log)
+                                if dean != currentDean:
+                                    changed = True
+                                    if enroll == 0 and currentDean != '':
+                                        print(f'WARN: {stuID} is changing from the dean of {currentDean} to {dean}')
+                                        print(f'WARN: {stuID} is changing from the dean of {currentDean} to {dean}', file=log)
+                                if social != currentSocial:
+                                    changed = True
+                                    if enroll == 0 and currentSocial != '':
+                                        print(f'WARN: {stuID} is changing from the social worker of {currentSocial} to {social}')
+                                        print(f'WARN: {stuID} is changing from the social worker of {currentSocial} to {social}', file=log)
+                                if psych != currentPsych:
+                                    changed = True
+                                    if enroll == 0 and currentPsych != '':
+                                        print(f'WARN: {stuID} is changing from the psychologist of {currentPsych} to {psych}')
+                                        print(f'WARN: {stuID} is changing from the psychologist of {currentPsych} to {psych}', file=log)
 
-                                # do the final output to the text file
-                                print(f'{stuID}\t{counselor}\t{dean}\t{social}\t{psych}', file=output)
+                                # do the final output to the text file only if there is change in any of the values for the student
+                                if changed:
+                                    print(f'{stuID}\t{counselor}\t{dean}\t{social}\t{psych}', file=output)
 
                             except Exception as er:
                                 print(f'ERROR while processing student {student[0]}: {er}')
