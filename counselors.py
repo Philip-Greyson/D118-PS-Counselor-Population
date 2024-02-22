@@ -183,22 +183,22 @@ if __name__ == '__main__':  # main file execution
                     print(f'ERROR while doing PowerSchool query: {er}')
                     print(f'ERROR while doing PowerSchool query: {er}', file=log)
 
-            try:
-                # Now connect to the D118 SFTP server and upload the file to be imported into PowerSchool
-                with pysftp.Connection(SFTP_HOST, username=SFTP_UN, password=SFTP_PW, cnopts=CNOPTS) as sftp:
-                    print(f'INFO: SFTP connection to D118 at {SFTP_HOST} successfully established')
-                    print(f'INFO: SFTP connection to D118 at {SFTP_HOST} successfully established', file=log)
-                    # print(sftp.pwd)  # debug to show current directory
-                    # print(sftp.listdir())  # debug to show files and directories in our location
-                    sftp.chdir(OUTPUT_FILE_DIRECTORY)
-                    # print(sftp.pwd) # debug to show current directory
-                    # print(sftp.listdir())  # debug to show files and directories in our location
-                    sftp.put(OUTPUT_FILE_NAME)  # upload the file to our sftp server
-                    print("INFO: Student services file placed on remote server")
-                    print("INFO: Student services file placed on remote server", file=log)
-            except Exception as er:
-                print(f'ERROR while connecting to D118 SFTP server: {er}')
-                print(f'ERROR while connecting to D118 SFTP server: {er}', file=log)
+        try:
+            # Now connect to the D118 SFTP server and upload the file to be imported into PowerSchool
+            with pysftp.Connection(SFTP_HOST, username=SFTP_UN, password=SFTP_PW, cnopts=CNOPTS) as sftp:
+                print(f'INFO: SFTP connection to D118 at {SFTP_HOST} successfully established')
+                print(f'INFO: SFTP connection to D118 at {SFTP_HOST} successfully established', file=log)
+                # print(sftp.pwd)  # debug to show current directory
+                # print(sftp.listdir())  # debug to show files and directories in our location
+                sftp.chdir(OUTPUT_FILE_DIRECTORY)
+                # print(sftp.pwd) # debug to show current directory
+                # print(sftp.listdir())  # debug to show files and directories in our location
+                sftp.put(OUTPUT_FILE_NAME)  # upload the file to our sftp server
+                print("INFO: Student services file placed on remote server")
+                print("INFO: Student services file placed on remote server", file=log)
+        except Exception as er:
+            print(f'ERROR while connecting to D118 SFTP server: {er}')
+            print(f'ERROR while connecting to D118 SFTP server: {er}', file=log)
 
         endTime = datetime.now()
         endTime = endTime.strftime('%H:%M:%S')
