@@ -139,7 +139,7 @@ if __name__ == '__main__':  # main file execution
                                     counselor = WMS_GUIDANCE if school == 1003 else MMS_GUIDANCE
                                     dean = ''
                                     social = WMS_SOCIAL if school == 1003 else MMS_SOCIAL
-                                    psych = WMS_PSYCH if school == 1003 else WMS_PSYCH
+                                    psych = WMS_PSYCH if school == 1003 else MMS_PSYCH
                                 else:  # if they are not in 6-12 or are not active, blank out all their fields
                                     print(f'DBUG: {stuID} has a grade level of {grade} at school {school} and enroll status of {enroll}, so they will be set to blanks')
                                     # print(f'DBUG: {stuID} has a grade level of {grade} at school {school} and enroll status of {enroll}, so they will be set to blanks', file=log)
