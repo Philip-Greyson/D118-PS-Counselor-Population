@@ -33,12 +33,19 @@ OUTPUT_FILE_DIRECTORY = '/sftp/studentServices/'
 
 # store the guidance counselor names as environment variables for privacy
 WHS_GUIDANCE_1 = os.environ.get('WHS_GUIDANCE_1')
+WHS_GUIDANCE_1_EMAIL = os.environ.get('WHS_GUIDANCE_1_EMAIL')
 WHS_GUIDANCE_2 = os.environ.get('WHS_GUIDANCE_2')
+WHS_GUIDANCE_2_EMAIL = os.environ.get('WHS_GUIDANCE_2_EMAIL')
 WHS_GUIDANCE_3 = os.environ.get('WHS_GUIDANCE_3')
+WHS_GUIDANCE_3_EMAIL = os.environ.get('WHS_GUIDANCE_3_EMAIL')
 WHS_GUIDANCE_4 = os.environ.get('WHS_GUIDANCE_4')
+WHS_GUIDANCE_4_EMAIL = os.environ.get('WHS_GUIDANCE_4_EMAIL')
 WHS_GUIDANCE_5 = os.environ.get('WHS_GUIDANCE_5')
+WHS_GUIDANCE_5_EMAIL = os.environ.get('WHS_GUIDANCE_5_EMAIL')
 WMS_GUIDANCE = os.environ.get('WMS_GUIDANCE')
+WMS_GUIDANCE_EMAIL = os.environ.get('WMS_GUIDANCE_EMAIL')
 MMS_GUIDANCE = os.environ.get('MMS_GUIDANCE')
+MMS_GUIDANCE_EMAIL = os.environ.get('MMS_GUIDANCE_EMAIL')
 WMS_PSYCH = os.environ.get('WMS_PSYCH')
 MMS_PSYCH = os.environ.get('MMS_PSYCH')
 WHS_PSYCH = os.environ.get('WHS_PSYCH')
@@ -91,41 +98,49 @@ if __name__ == '__main__':  # main file execution
                                     psych = WHS_PSYCH
                                     if (last[0] < 'd'):  # A-C last names
                                         counselor = WHS_GUIDANCE_1
+                                        counselorEmail = WHS_GUIDANCE_1_EMAIL
                                         dean = WHS_DEAN_1
                                         social = WHS_SOCIAL_1
                                         # print('DBUG: Student has name between A-C', file=log)
                                     elif (last[0] == 'd'):  # if they are D, we need to check next letter as Da-Dh is one while Di-Dz is another
                                         counselor = WHS_GUIDANCE_1 if (last[1] < 'i') else WHS_GUIDANCE_2  # check second letter
+                                        counselorEmail = WHS_GUIDANCE_1_EMAIL if (last[1] < 'i') else WHS_GUIDANCE_2_EMAIL  # check second letter
                                         dean = WHS_DEAN_1
                                         social = WHS_SOCIAL_1
                                         # print('DBUG: Student has name starting with D, finding correct counselor based on second letter - ' + last[1], file=log)
                                     elif (last[0] < 'i'):  # E-H
                                         counselor = WHS_GUIDANCE_2
+                                        counselorEmail = WHS_GUIDANCE_2_EMAIL
                                         dean = WHS_DEAN_1
                                         social = WHS_SOCIAL_1
                                         # print('DBUG: Student has name between E-H', file=log)
                                     elif (last[0] < 'm'):  # I-L
                                         counselor = WHS_GUIDANCE_3
+                                        counselorEmail = WHS_GUIDANCE_3_EMAIL
                                         dean = WHS_DEAN_1
                                         social = WHS_SOCIAL_2
                                         # print('DBUG: Student has name between I-L', file=log)
                                     elif (last[0] == 'm'):  # same situation as D, M is split
                                         counselor = WHS_GUIDANCE_3 if (last[1] < 'd') else WHS_GUIDANCE_4
+                                        counselorEmail = WHS_GUIDANCE_3_EMAIL if (last[1] < 'd') else WHS_GUIDANCE_4_EMAIL
                                         dean = WHS_DEAN_2
                                         social = WHS_SOCIAL_2
                                         # print('DBUG: Student has name starting with M, finding correct counselor based on second letter - ' + last[1], file=log)
                                     elif (last[0] == 'n'):  # only N, since we need I-N for social worker
                                         counselor = WHS_GUIDANCE_4
+                                        counselorEmail = WHS_GUIDANCE_4_EMAIL
                                         dean = WHS_DEAN_2
                                         social = WHS_SOCIAL_2
                                         # print('DBUG: Student has name starting with N', file=log)
                                     elif (last[0] < 's'):  # O-R
                                         counselor = WHS_GUIDANCE_4
+                                        counselorEmail = WHS_GUIDANCE_4_EMAIL
                                         dean = WHS_DEAN_2
                                         social = WHS_SOCIAL_3
                                         # print('DBUG: Student has name between O-R', file=log)
                                     elif (last[0] <= 'z'):  # S-Z
                                         counselor = WHS_GUIDANCE_5
+                                        counselorEmail = WHS_GUIDANCE_5_EMAIL
                                         dean = WHS_DEAN_2
                                         social = WHS_SOCIAL_3
                                         # print('DBUG: Student has name between S-Z', file=log)
@@ -137,6 +152,7 @@ if __name__ == '__main__':  # main file execution
                                     print(f'DBUG: {stuID}: {last} is in grade {grade} at building {school} and is active, will process as a middle schooler')
                                     # print(f'DBUG: {stuID}: {last} is in grade {grade} at building {school} and is active, will process as a middle schooler', file=log)
                                     counselor = WMS_GUIDANCE if school == 1003 else MMS_GUIDANCE
+                                    counselorEmail = WMS_GUIDANCE_EMAIL if school == 1003 else MMS_GUIDANCE_EMAIL
                                     dean = ''
                                     social = WMS_SOCIAL if school == 1003 else MMS_SOCIAL
                                     psych = WMS_PSYCH if school == 1003 else MMS_PSYCH
@@ -147,7 +163,7 @@ if __name__ == '__main__':  # main file execution
                                     dean = ''
                                     social = ''
                                     psych = ''
-                                print(f'DBUG: {stuID} in grade {grade} at school {school}- Counselor: {counselor} | Dean: {dean} | Social Worker: {social} | Psychologist: {psych}', file=log)  # debug
+                                print(f'DBUG: {stuID} in grade {grade} at school {school}- Counselor: {counselor}: {counselorEmail} | Dean: {dean} | Social Worker: {social} | Psychologist: {psych}', file=log)  # debug
 
                                 # check to see if their counselor, dean, psychologist or social worker changed from the current value, warn if they are changing from other values and are enrolled as a sanity check
                                 if counselor != currentCounselor:
@@ -173,7 +189,7 @@ if __name__ == '__main__':  # main file execution
 
                                 # do the final output to the text file only if there is change in any of the values for the student
                                 if changed:
-                                    print(f'{stuID}\t{counselor}\t{dean}\t{social}\t{psych}', file=output)
+                                    print(f'{stuID}\t{counselor}\t{dean}\t{social}\t{psych}\t{counselorEmail}', file=output)
 
                             except Exception as er:
                                 print(f'ERROR while processing student {student[0]}: {er}')
@@ -204,4 +220,3 @@ if __name__ == '__main__':  # main file execution
         endTime = endTime.strftime('%H:%M:%S')
         print(f'INFO: Execution ended at {endTime}')
         print(f'INFO: Execution ended at {endTime}', file=log)
-
