@@ -89,7 +89,7 @@ if __name__ == '__main__':  # main file execution
                                 currentSocial = str(student[7]) if student[7] else ''
                                 currentPsych = str(student[8]) if student[8] else ''
                                 counselor = ''  # reset to blank for each student just in case so output does not carry over between students
-                                counselorEmail = '' # reset to blank for each student just in case so output does not carry over between students
+                                counselorEmail = ''  # reset to blank for each student just in case so output does not carry over between students
                                 dean = ''  # reset to blank for each student just in case so output does not carry over between students
                                 social = ''  # reset to blank for each student just in case so output does not carry over between students
                                 psych = ''  # reset to blank for each student just in case so output does not carry over between students
