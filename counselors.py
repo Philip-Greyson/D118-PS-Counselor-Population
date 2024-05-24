@@ -73,7 +73,7 @@ if __name__ == '__main__':  # main file execution
                         print(f'INFO: Connection established to PS database on version: {con.version}')
                         print(f'INFO: Connection established to PS database on version: {con.version}', file=log)
 
-                        cur.execute('SELECT students.student_number, students.last_name, students.grade_level, students.enroll_status, students.schoolid, u_studentsuserfields.custom_counselor, u_studentsuserfields.custom_deans_house, u_def_ext_students0.custom_social, u_def_ext_students0.custom_psych\
+                        cur.execute('SELECT students.student_number, students.last_name, students.grade_level, students.enroll_status, students.schoolid, u_studentsuserfields.custom_counselor, u_studentsuserfields.custom_deans_house, u_def_ext_students0.custom_social, u_def_ext_students0.custom_psych, u_studentsuserfields.custom_counselor_email\
                         FROM students LEFT JOIN u_studentsuserfields ON students.dcid = u_studentsuserfields.studentsdcid LEFT JOIN u_def_ext_students0 ON students.dcid = u_def_ext_students0.studentsdcid ORDER BY students.student_number DESC')
                         students = cur.fetchall()
                         for student in students:
@@ -84,10 +84,12 @@ if __name__ == '__main__':  # main file execution
                                 enroll = int(student[3])
                                 school = int(student[4])
                                 currentCounselor = str(student[5]) if student[5] else ''
+                                currentCounselorEmail = str(student[9]) if student[9] else ''
                                 currentDean = str(student[6]) if student[6] else ''
                                 currentSocial = str(student[7]) if student[7] else ''
                                 currentPsych = str(student[8]) if student[8] else ''
                                 counselor = ''  # reset to blank for each student just in case so output does not carry over between students
+                                counselorEmail = '' # reset to blank for each student just in case so output does not carry over between students
                                 dean = ''  # reset to blank for each student just in case so output does not carry over between students
                                 social = ''  # reset to blank for each student just in case so output does not carry over between students
                                 psych = ''  # reset to blank for each student just in case so output does not carry over between students
@@ -171,6 +173,11 @@ if __name__ == '__main__':  # main file execution
                                     if enroll == 0 and currentCounselor != '':
                                         print(f'WARN: {stuID} is changing from the counselor of {currentCounselor} to {counselor}')
                                         print(f'WARN: {stuID} is changing from the counselor of {currentCounselor} to {counselor}', file=log)
+                                if counselorEmail != currentCounselorEmail:
+                                    changed = True
+                                    if enroll == 0 and currentCounselorEmail != '':
+                                        print(f'WARN: {stuID} is changing from the counselor email of {currentCounselorEmail} to {counselorEmail}')
+                                        print(f'WARN: {stuID} is changing from the counselor email of {currentCounselorEmail} to {counselorEmail}', file=log)
                                 if dean != currentDean:
                                     changed = True
                                     if enroll == 0 and currentDean != '':
