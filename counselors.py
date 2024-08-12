@@ -49,18 +49,31 @@ WMS_GUIDANCE_EMAIL = os.environ.get('WMS_GUIDANCE_EMAIL')
 MMS_GUIDANCE = os.environ.get('MMS_GUIDANCE')
 MMS_GUIDANCE_EMAIL = os.environ.get('MMS_GUIDANCE_EMAIL')
 WMS_PSYCH = os.environ.get('WMS_PSYCH')
+WMS_PSYCH_EMAIL = os.environ.get('WMS_PSYCH_EMAIL')
 MMS_PSYCH = os.environ.get('MMS_PSYCH')
+MMS_PSYCH_EMAIL = os.environ.get('MMS_PSYCH_EMAIL')
 WHS_PSYCH_1 = os.environ.get('WHS_PSYCH_1')
+WHS_PSYCH_1_EMAIL = os.environ.get('WHS_PSYCH_1_EMAIL')
 WHS_PSYCH_2 = os.environ.get('WHS_PSYCH_2')
+WHS_PSYCH_2_EMAIL = os.environ.get('WHS_PSYCH_2_EMAIL')
 WMS_SOCIAL = os.environ.get('WMS_SOCIAL')
+WMS_SOCIAL_EMAIL = os.environ.get('WMS_SOCIAL_EMAIL')
 MMS_SOCIAL = os.environ.get('MMS_SOCIAL')
+MMS_SOCIAL_EMAIL = os.environ.get('MMS_SOCIAL_EMAIL')
 WHS_SOCIAL_1 = os.environ.get('WHS_SOCIAL_1')
+WHS_SOCIAL_1_EMAIL = os.environ.get('WHS_SOCIAL_1_EMAIL')
 WHS_SOCIAL_2 = os.environ.get('WHS_SOCIAL_2')
+WHS_SOCIAL_2_EMAIL = os.environ.get('WHS_SOCIAL_2_EMAIL')
 WHS_SOCIAL_3 = os.environ.get('WHS_SOCIAL_3')
+WHS_SOCIAL_3_EMAIL = os.environ.get('WHS_SOCIAL_3_EMAIL')
 WHS_SOCIAL_ACADEMY = os.environ.get('WHS_SOCIAL_ACADEMY')
+WHS_SOCIAL_ACADEMY_EMAIL = os.environ.get('WHS_SOCIAL_ACADEMY_EMAIL')
 WHS_SOCIAL_ILS = os.environ.get('WHS_SOCIAL_ILS')
+WHS_SOCIAL_ILS_EMAIL = os.environ.get('WHS_SOCIAL_ILS_EMAIL')
 WHS_DEAN_1 = os.environ.get('WHS_DEAN_1')
+WHS_DEAN_1_EMAIL = os.environ.get('WHS_DEAN_1_EMAIL')
 WHS_DEAN_2 = os.environ.get('WHS_DEAN_2')
+WHS_DEAN_2_EMAIL = os.environ.get('WHS_DEAN_2_EMAIL')
 
 print(f"Database Username: {DB_UN} |Password: {DB_PW} |Server: {DB_CS}")  # debug so we can see where oracle is trying to connect to/with
 print(f'SFTP Username: {SFTP_UN} | D118 SFTP Password: {SFTP_PW} | D118 SFTP Server: {SFTP_HOST}')  # debug so we can see what info sftp connection is using
@@ -78,7 +91,7 @@ if __name__ == '__main__':  # main file execution
                         print(f'INFO: Connection established to PS database on version: {con.version}')
                         print(f'INFO: Connection established to PS database on version: {con.version}', file=log)
 
-                        cur.execute('SELECT stu.student_number, stu.last_name, stu.grade_level, stu.enroll_status, stu.schoolid, stufields.custom_counselor, stufields.custom_deans_house, stuext.custom_social, stuext.custom_psych, stufields.custom_counselor_email, stuext.academy, stuext.ils\
+                        cur.execute('SELECT stu.student_number, stu.last_name, stu.grade_level, stu.enroll_status, stu.schoolid, stufields.custom_counselor, stufields.custom_deans_house, stuext.custom_social, stuext.custom_psych, stufields.custom_counselor_email, stuext.academy, stuext.ils, stufields.custom_deans_house_email, stufields.custom_social_email, stufields.custom_psych_email\
                         FROM students stu LEFT JOIN u_studentsuserfields stufields ON stu.dcid = stufields.studentsdcid LEFT JOIN u_def_ext_students0 stuext ON stu.dcid = stuext.studentsdcid ORDER BY stu.student_number DESC')
                         students = cur.fetchall()
                         for student in students:
@@ -91,15 +104,21 @@ if __name__ == '__main__':  # main file execution
                                 currentCounselor = str(student[5]) if student[5] else ''
                                 currentCounselorEmail = str(student[9]) if student[9] else ''
                                 currentDean = str(student[6]) if student[6] else ''
+                                currentDeanEmail = str(student[12]) if student[12] else ''
                                 currentSocial = str(student[7]) if student[7] else ''
+                                currentSocialEmail = str(student[13]) if student[13] else ''
                                 currentPsych = str(student[8]) if student[8] else ''
+                                currentPsychEmail = str(student[14]) if student[14] else ''
                                 isAcademy = True if student[10] == 1 else False
                                 isILS = True if student[11] == 1 else False
                                 counselor = ''  # reset to blank for each student just in case so output does not carry over between students
                                 counselorEmail = ''  # reset to blank for each student just in case so output does not carry over between students
                                 dean = ''  # reset to blank for each student just in case so output does not carry over between students
+                                deanEmail = ''  # reset to blank for each student just in case so output does not carry over between students
                                 social = ''  # reset to blank for each student just in case so output does not carry over between students
+                                socialEmail = ''  # reset to blank for each student just in case so output does not carry over between students
                                 psych = ''  # reset to blank for each student just in case so output does not carry over between students
+                                psychEmail = ''  # reset to blank for each student just in case so output does not carry over between students
                                 changed = False  # boolean to represent whether we need to include this student in the output because anything has changed
                                 if grade in range(9,13) and enroll == 0:  # process high schoolers
                                     print(f'DBUG: {stuID}: {last} is in grade {grade} and active, will process as a high schooler')
@@ -108,50 +127,71 @@ if __name__ == '__main__':  # main file execution
                                         counselor = WHS_GUIDANCE_1
                                         counselorEmail = WHS_GUIDANCE_1_EMAIL
                                         dean = WHS_DEAN_1
+                                        deanEmail = WHS_DEAN_1_EMAIL
                                         social = WHS_SOCIAL_1
+                                        socialEmail = WHS_SOCIAL_1_EMAIL
                                         psych = WHS_PSYCH_1
+                                        psychEmail = WHS_PSYCH_1_EMAIL
                                         # print('DBUG: Student has a last name starting with A', file=log)
                                     elif (last[0] < 'g'): # B-F
                                         counselor = WHS_GUIDANCE_2
                                         counselorEmail = WHS_GUIDANCE_2_EMAIL
                                         dean = WHS_DEAN_1
+                                        deanEmail = WHS_DEAN_1_EMAIL
                                         social = WHS_SOCIAL_1
+                                        socialEmail = WHS_SOCIAL_1_EMAIL
                                         psych = WHS_PSYCH_1
+                                        psychEmail = WHS_PSYCH_1_EMAIL
                                         # print('DBUG: Student has a last name between B-F', file=log)
                                     elif (last[0] == 'g'):  # if they are D, we need to check next letter as Da-Dh is one while Di-Dz is another
                                         counselor = WHS_GUIDANCE_2 if (last[1] == 'a') else WHS_GUIDANCE_3  # check second letter
                                         counselorEmail = WHS_GUIDANCE_2_EMAIL if (last[1] == 'a') else WHS_GUIDANCE_3_EMAIL  # check second letter
                                         dean = WHS_DEAN_1
+                                        deanEmail = WHS_DEAN_1_EMAIL
                                         social = WHS_SOCIAL_1
+                                        socialEmail = WHS_SOCIAL_1_EMAIL
                                         psych = WHS_PSYCH_1
+                                        psychEmail = WHS_PSYCH_1_EMAIL
                                         # print('DBUG: Student has name starting with G, finding correct counselor based on second letter - ' + last[1], file=log)
                                     elif (last[0] < 'm'):  # H-L
                                         counselor = WHS_GUIDANCE_3
                                         counselorEmail = WHS_GUIDANCE_3_EMAIL
                                         dean = WHS_DEAN_1
+                                        deanEmail = WHS_DEAN_1_EMAIL
                                         social = WHS_SOCIAL_1
+                                        socialEmail = WHS_SOCIAL_1_EMAIL
                                         psych = WHS_PSYCH_1
+                                        psychEmail = WHS_PSYCH_1_EMAIL
                                         # print('DBUG: Student has name between H-L', file=log)
                                     elif (last[0] < 'r'):  # M-Q
                                         counselor = WHS_GUIDANCE_4
                                         counselorEmail = WHS_GUIDANCE_4_EMAIL
                                         dean = WHS_DEAN_2
+                                        deanEmail = WHS_DEAN_2_EMAIL
                                         social = WHS_SOCIAL_2
+                                        socialEmail = WHS_SOCIAL_2_EMAIL
                                         psych = WHS_PSYCH_2
+                                        psychEmail = WHS_PSYCH_2_EMAIL
                                         # print('DBUG: Student has name between M-Q', file=log)
                                     elif (last[0] == 'r'):  # same situation as G, R is split
                                         counselor = WHS_GUIDANCE_4 if (last[1] < 'j') else WHS_GUIDANCE_5
                                         counselorEmail = WHS_GUIDANCE_4_EMAIL if (last[1] < 'j') else WHS_GUIDANCE_5_EMAIL
                                         dean = WHS_DEAN_2
+                                        deanEmail = WHS_DEAN_2_EMAIL
                                         social = WHS_SOCIAL_2
+                                        socialEmail = WHS_SOCIAL_2_EMAIL
                                         psych = WHS_PSYCH_2
+                                        psychEmail = WHS_PSYCH_2_EMAIL
                                         # print('DBUG: Student has name starting with R, finding correct counselor based on second letter - ' + last[1], file=log)
                                     elif (last[0] <= 'z'):  # S-Z
                                         counselor = WHS_GUIDANCE_5
                                         counselorEmail = WHS_GUIDANCE_5_EMAIL
                                         dean = WHS_DEAN_2
+                                        deanEmail = WHS_DEAN_2_EMAIL
                                         social = WHS_SOCIAL_2
+                                        socialEmail = WHS_SOCIAL_2_EMAIL
                                         psych = WHS_PSYCH_2
+                                        psychEmail = WHS_PSYCH_2_EMAIL
                                         # print('DBUG: Student has name between S-Z', file=log)
                                     else:  # just in case we get through all possible
                                         counselor = 'ERROR'
@@ -162,9 +202,11 @@ if __name__ == '__main__':  # main file execution
                                         counselor = WHS_GUIDANCE_ACADEMY
                                         counselorEmail = WHS_GUIDANCE_ACADEMY_EMAIL
                                         social = WHS_SOCIAL_ACADEMY
+                                        socialEmail = WHS_SOCIAL_ACADEMY_EMAIL
                                         print('DBUG: Student is an academy student, overriding their counselor and social worker', file=log)
                                     if isILS:
                                         social = WHS_SOCIAL_ILS
+                                        socialEmail = WHS_SOCIAL_ILS_EMAIL
                                         print('DBUG: Student is an ILS student, overriding their social worker', file=log)
 
                                 elif (school == 1003 or school == 1004) and enroll == 0:  # if they are a middle schooler they all have the same counselor per building
@@ -173,16 +215,23 @@ if __name__ == '__main__':  # main file execution
                                     counselor = WMS_GUIDANCE if school == 1003 else MMS_GUIDANCE
                                     counselorEmail = WMS_GUIDANCE_EMAIL if school == 1003 else MMS_GUIDANCE_EMAIL
                                     dean = ''
+                                    deanEmail = ''
                                     social = WMS_SOCIAL if school == 1003 else MMS_SOCIAL
+                                    socialEmail = WMS_SOCIAL_EMAIL if school == 1003 else MMS_SOCIAL_EMAIL
                                     psych = WMS_PSYCH if school == 1003 else MMS_PSYCH
+                                    psychEmail = WMS_PSYCH_EMAIL if school == 1003 else MMS_PSYCH_EMAIL
                                 else:  # if they are not in 6-12 or are not active, blank out all their fields
                                     print(f'DBUG: {stuID} has a grade level of {grade} at school {school} and enroll status of {enroll}, so they will be set to blanks')
                                     # print(f'DBUG: {stuID} has a grade level of {grade} at school {school} and enroll status of {enroll}, so they will be set to blanks', file=log)
                                     counselor = ''
+                                    counselorEmail = ''
                                     dean = ''
+                                    deanEmail = ''
                                     social = ''
+                                    socialEmail = ''
                                     psych = ''
-                                print(f'DBUG: {stuID} in grade {grade} at school {school}- Counselor: {counselor}: {counselorEmail} | Dean: {dean} | Social Worker: {social} | Psychologist: {psych}', file=log)  # debug
+                                    psychEmail = ''
+                                print(f'DBUG: {stuID} in grade {grade} at school {school}- Counselor: {counselor}-{counselorEmail} | Dean: {dean}-{deanEmail} | Social Worker: {social}-{socialEmail} | Psychologist: {psych}-{psychEmail}', file=log)  # debug
 
                                 # check to see if their counselor, dean, psychologist or social worker changed from the current value, warn if they are changing from other values and are enrolled as a sanity check
                                 if counselor != currentCounselor:
@@ -200,20 +249,35 @@ if __name__ == '__main__':  # main file execution
                                     if enroll == 0 and currentDean != '':
                                         print(f'WARN: {stuID} is changing from the dean of {currentDean} to {dean}')
                                         print(f'WARN: {stuID} is changing from the dean of {currentDean} to {dean}', file=log)
+                                if deanEmail != currentDeanEmail:
+                                    changed = True
+                                    if enroll == 0 and currentDeanEmail != '':
+                                        print(f'WARN: {stuID} is changing from the dean email of {currentDeanEmail} to {deanEmail}')
+                                        print(f'WARN: {stuID} is changing from the dean email of {currentDeanEmail} to {deanEmail}', file=log)
                                 if social != currentSocial:
                                     changed = True
                                     if enroll == 0 and currentSocial != '':
                                         print(f'WARN: {stuID} is changing from the social worker of {currentSocial} to {social}')
                                         print(f'WARN: {stuID} is changing from the social worker of {currentSocial} to {social}', file=log)
+                                if socialEmail != currentSocialEmail:
+                                    changed = True
+                                    if enroll == 0 and currentSocialEmail != '':
+                                        print(f'WARN: {stuID} is changing from the social worker email of {currentSocialEmail} to {socialEmail}')
+                                        print(f'WARN: {stuID} is changing from the social worker email of {currentSocialEmail} to {socialEmail}', file=log)
                                 if psych != currentPsych:
                                     changed = True
                                     if enroll == 0 and currentPsych != '':
                                         print(f'WARN: {stuID} is changing from the psychologist of {currentPsych} to {psych}')
                                         print(f'WARN: {stuID} is changing from the psychologist of {currentPsych} to {psych}', file=log)
+                                if psychEmail != currentPsychEmail:
+                                    changed = True
+                                    if enroll == 0 and currentPsychEmail != '':
+                                        print(f'WARN: {stuID} is changing from the psychologist email of {currentPsychEmail} to {psychEmail}')
+                                        print(f'WARN: {stuID} is changing from the psychologist email of {currentPsychEmail} to {psychEmail}', file=log)
 
                                 # do the final output to the text file only if there is change in any of the values for the student
                                 if changed:
-                                    print(f'{stuID}\t{counselor}\t{dean}\t{social}\t{psych}\t{counselorEmail}', file=output)
+                                    print(f'{stuID}\t{counselor}\t{dean}\t{social}\t{psych}\t{counselorEmail}\t{deanEmail}\t{socialEmail}\t{psychEmail}', file=output)
 
                             except Exception as er:
                                 print(f'ERROR while processing student {student[0]}: {er}')
