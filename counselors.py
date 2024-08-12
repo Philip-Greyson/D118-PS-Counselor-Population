@@ -42,18 +42,23 @@ WHS_GUIDANCE_4 = os.environ.get('WHS_GUIDANCE_4')
 WHS_GUIDANCE_4_EMAIL = os.environ.get('WHS_GUIDANCE_4_EMAIL')
 WHS_GUIDANCE_5 = os.environ.get('WHS_GUIDANCE_5')
 WHS_GUIDANCE_5_EMAIL = os.environ.get('WHS_GUIDANCE_5_EMAIL')
+WHS_GUIDANCE_ACADEMY = os.environ.get('WHS_GUIDANCE_ACADEMY')
+WHS_GUIDANCE_ACADEMY_EMAIL = os.environ.get('WHS_GUIDANCE_ACADEMY_EMAIL')
 WMS_GUIDANCE = os.environ.get('WMS_GUIDANCE')
 WMS_GUIDANCE_EMAIL = os.environ.get('WMS_GUIDANCE_EMAIL')
 MMS_GUIDANCE = os.environ.get('MMS_GUIDANCE')
 MMS_GUIDANCE_EMAIL = os.environ.get('MMS_GUIDANCE_EMAIL')
 WMS_PSYCH = os.environ.get('WMS_PSYCH')
 MMS_PSYCH = os.environ.get('MMS_PSYCH')
-WHS_PSYCH = os.environ.get('WHS_PSYCH')
+WHS_PSYCH_1 = os.environ.get('WHS_PSYCH_1')
+WHS_PSYCH_2 = os.environ.get('WHS_PSYCH_2')
 WMS_SOCIAL = os.environ.get('WMS_SOCIAL')
 MMS_SOCIAL = os.environ.get('MMS_SOCIAL')
 WHS_SOCIAL_1 = os.environ.get('WHS_SOCIAL_1')
 WHS_SOCIAL_2 = os.environ.get('WHS_SOCIAL_2')
 WHS_SOCIAL_3 = os.environ.get('WHS_SOCIAL_3')
+WHS_SOCIAL_ACADEMY = os.environ.get('WHS_SOCIAL_ACADEMY')
+WHS_SOCIAL_ILS = os.environ.get('WHS_SOCIAL_ILS')
 WHS_DEAN_1 = os.environ.get('WHS_DEAN_1')
 WHS_DEAN_2 = os.environ.get('WHS_DEAN_2')
 
@@ -73,8 +78,8 @@ if __name__ == '__main__':  # main file execution
                         print(f'INFO: Connection established to PS database on version: {con.version}')
                         print(f'INFO: Connection established to PS database on version: {con.version}', file=log)
 
-                        cur.execute('SELECT students.student_number, students.last_name, students.grade_level, students.enroll_status, students.schoolid, u_studentsuserfields.custom_counselor, u_studentsuserfields.custom_deans_house, u_def_ext_students0.custom_social, u_def_ext_students0.custom_psych, u_studentsuserfields.custom_counselor_email\
-                        FROM students LEFT JOIN u_studentsuserfields ON students.dcid = u_studentsuserfields.studentsdcid LEFT JOIN u_def_ext_students0 ON students.dcid = u_def_ext_students0.studentsdcid ORDER BY students.student_number DESC')
+                        cur.execute('SELECT stu.student_number, stu.last_name, stu.grade_level, stu.enroll_status, stu.schoolid, stufields.custom_counselor, stufields.custom_deans_house, stuext.custom_social, stuext.custom_psych, stufields.custom_counselor_email, stuext.academy, stuext.ils\
+                        FROM students stu LEFT JOIN u_studentsuserfields stufields ON stu.dcid = stufields.studentsdcid LEFT JOIN u_def_ext_students0 stuext ON stu.dcid = stuext.studentsdcid ORDER BY stu.student_number DESC')
                         students = cur.fetchall()
                         for student in students:
                             try:
@@ -88,6 +93,8 @@ if __name__ == '__main__':  # main file execution
                                 currentDean = str(student[6]) if student[6] else ''
                                 currentSocial = str(student[7]) if student[7] else ''
                                 currentPsych = str(student[8]) if student[8] else ''
+                                isAcademy = True if student[10] == 1 else False
+                                isILS = True if student[11] == 1 else False
                                 counselor = ''  # reset to blank for each student just in case so output does not carry over between students
                                 counselorEmail = '' # reset to blank for each student just in case so output does not carry over between students
                                 dean = ''  # reset to blank for each student just in case so output does not carry over between students
@@ -97,58 +104,68 @@ if __name__ == '__main__':  # main file execution
                                 if grade in range(9,13) and enroll == 0:  # process high schoolers
                                     print(f'DBUG: {stuID}: {last} is in grade {grade} and active, will process as a high schooler')
                                     # print(f'DBUG: {stuID}: {last} is in grade {grade} and active, will process as a high schooler', file=log)
-                                    psych = WHS_PSYCH
-                                    if (last[0] < 'd'):  # A-C last names
+                                    if (last[0] == 'a'): # A last names
                                         counselor = WHS_GUIDANCE_1
                                         counselorEmail = WHS_GUIDANCE_1_EMAIL
                                         dean = WHS_DEAN_1
                                         social = WHS_SOCIAL_1
-                                        # print('DBUG: Student has name between A-C', file=log)
-                                    elif (last[0] == 'd'):  # if they are D, we need to check next letter as Da-Dh is one while Di-Dz is another
-                                        counselor = WHS_GUIDANCE_1 if (last[1] < 'i') else WHS_GUIDANCE_2  # check second letter
-                                        counselorEmail = WHS_GUIDANCE_1_EMAIL if (last[1] < 'i') else WHS_GUIDANCE_2_EMAIL  # check second letter
-                                        dean = WHS_DEAN_1
-                                        social = WHS_SOCIAL_1
-                                        # print('DBUG: Student has name starting with D, finding correct counselor based on second letter - ' + last[1], file=log)
-                                    elif (last[0] < 'i'):  # E-H
+                                        psych = WHS_PSYCH_1
+                                        # print('DBUG: Student has a last name starting with A', file=log)
+                                    elif (last[0] < 'g'): # B-F
                                         counselor = WHS_GUIDANCE_2
                                         counselorEmail = WHS_GUIDANCE_2_EMAIL
                                         dean = WHS_DEAN_1
                                         social = WHS_SOCIAL_1
-                                        # print('DBUG: Student has name between E-H', file=log)
-                                    elif (last[0] < 'm'):  # I-L
+                                        psych = WHS_PSYCH_1
+                                        # print('DBUG: Student has a last name between B-F', file=log)
+                                    elif (last[0] == 'g'):  # if they are D, we need to check next letter as Da-Dh is one while Di-Dz is another
+                                        counselor = WHS_GUIDANCE_2 if (last[1] == 'a') else WHS_GUIDANCE_3  # check second letter
+                                        counselorEmail = WHS_GUIDANCE_2_EMAIL if (last[1] == 'a') else WHS_GUIDANCE_3_EMAIL  # check second letter
+                                        dean = WHS_DEAN_1
+                                        social = WHS_SOCIAL_1
+                                        psych = WHS_PSYCH_1
+                                        # print('DBUG: Student has name starting with G, finding correct counselor based on second letter - ' + last[1], file=log)
+                                    elif (last[0] < 'm'):  # H-L
                                         counselor = WHS_GUIDANCE_3
                                         counselorEmail = WHS_GUIDANCE_3_EMAIL
                                         dean = WHS_DEAN_1
-                                        social = WHS_SOCIAL_2
-                                        # print('DBUG: Student has name between I-L', file=log)
-                                    elif (last[0] == 'm'):  # same situation as D, M is split
-                                        counselor = WHS_GUIDANCE_3 if (last[1] < 'd') else WHS_GUIDANCE_4
-                                        counselorEmail = WHS_GUIDANCE_3_EMAIL if (last[1] < 'd') else WHS_GUIDANCE_4_EMAIL
-                                        dean = WHS_DEAN_2
-                                        social = WHS_SOCIAL_2
-                                        # print('DBUG: Student has name starting with M, finding correct counselor based on second letter - ' + last[1], file=log)
-                                    elif (last[0] == 'n'):  # only N, since we need I-N for social worker
+                                        social = WHS_SOCIAL_1
+                                        psych = WHS_PSYCH_1
+                                        # print('DBUG: Student has name between H-L', file=log)
+                                    elif (last[0] < 'r'):  # M-Q
                                         counselor = WHS_GUIDANCE_4
                                         counselorEmail = WHS_GUIDANCE_4_EMAIL
                                         dean = WHS_DEAN_2
                                         social = WHS_SOCIAL_2
-                                        # print('DBUG: Student has name starting with N', file=log)
-                                    elif (last[0] < 's'):  # O-R
-                                        counselor = WHS_GUIDANCE_4
-                                        counselorEmail = WHS_GUIDANCE_4_EMAIL
+                                        psych = WHS_PSYCH_2
+                                        # print('DBUG: Student has name between M-Q', file=log)
+                                    elif (last[0] == 'r'):  # same situation as G, R is split
+                                        counselor = WHS_GUIDANCE_4 if (last[1] < 'j') else WHS_GUIDANCE_5
+                                        counselorEmail = WHS_GUIDANCE_4_EMAIL if (last[1] < 'j') else WHS_GUIDANCE_5_EMAIL
                                         dean = WHS_DEAN_2
-                                        social = WHS_SOCIAL_3
-                                        # print('DBUG: Student has name between O-R', file=log)
+                                        social = WHS_SOCIAL_2
+                                        psych = WHS_PSYCH_2
+                                        # print('DBUG: Student has name starting with R, finding correct counselor based on second letter - ' + last[1], file=log)
                                     elif (last[0] <= 'z'):  # S-Z
                                         counselor = WHS_GUIDANCE_5
                                         counselorEmail = WHS_GUIDANCE_5_EMAIL
                                         dean = WHS_DEAN_2
-                                        social = WHS_SOCIAL_3
+                                        social = WHS_SOCIAL_2
+                                        psych = WHS_PSYCH_2
                                         # print('DBUG: Student has name between S-Z', file=log)
                                     else:  # just in case we get through all possible
                                         counselor = 'ERROR'
                                         print('ERROR: Student last name processing failed', file=log)
+
+                                    # do an override for academy and ILS students
+                                    if isAcademy:
+                                        counselor = WHS_GUIDANCE_ACADEMY
+                                        counselorEmail = WHS_GUIDANCE_ACADEMY_EMAIL
+                                        social = WHS_SOCIAL_ACADEMY
+                                        print('DBUG: Student is an academy student, overriding their counselor and social worker', file=log)
+                                    if isILS:
+                                        social = WHS_SOCIAL_ILS
+                                        print('DBUG: Student is an ILS student, overriding their social worker', file=log)
 
                                 elif (school == 1003 or school == 1004) and enroll == 0:  # if they are a middle schooler they all have the same counselor per building
                                     print(f'DBUG: {stuID}: {last} is in grade {grade} at building {school} and is active, will process as a middle schooler')
