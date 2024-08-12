@@ -96,7 +96,7 @@ if __name__ == '__main__':  # main file execution
                                 isAcademy = True if student[10] == 1 else False
                                 isILS = True if student[11] == 1 else False
                                 counselor = ''  # reset to blank for each student just in case so output does not carry over between students
-                                counselorEmail = '' # reset to blank for each student just in case so output does not carry over between students
+                                counselorEmail = ''  # reset to blank for each student just in case so output does not carry over between students
                                 dean = ''  # reset to blank for each student just in case so output does not carry over between students
                                 social = ''  # reset to blank for each student just in case so output does not carry over between students
                                 psych = ''  # reset to blank for each student just in case so output does not carry over between students
