@@ -123,7 +123,7 @@ if __name__ == '__main__':  # main file execution
                                 if grade in range(9,13) and enroll == 0:  # process high schoolers
                                     print(f'DBUG: {stuID}: {last} is in grade {grade} and active, will process as a high schooler')
                                     # print(f'DBUG: {stuID}: {last} is in grade {grade} and active, will process as a high schooler', file=log)
-                                    if (last[0] == 'a'): # A last names
+                                    if (last[0] == 'a'):  # A last names
                                         counselor = WHS_GUIDANCE_1
                                         counselorEmail = WHS_GUIDANCE_1_EMAIL
                                         dean = WHS_DEAN_1
@@ -133,7 +133,7 @@ if __name__ == '__main__':  # main file execution
                                         psych = WHS_PSYCH_1
                                         psychEmail = WHS_PSYCH_1_EMAIL
                                         # print('DBUG: Student has a last name starting with A', file=log)
-                                    elif (last[0] < 'g'): # B-F
+                                    elif (last[0] < 'g'):  # B-F
                                         counselor = WHS_GUIDANCE_2
                                         counselorEmail = WHS_GUIDANCE_2_EMAIL
                                         dean = WHS_DEAN_1

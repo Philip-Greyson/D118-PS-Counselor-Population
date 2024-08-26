@@ -3,3 +3,4 @@ counselors.txt
 known_hosts
 ruff.toml
 studentServices.txt
+.venv/
