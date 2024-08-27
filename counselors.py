@@ -30,6 +30,7 @@ CNOPTS = pysftp.CnOpts(knownhosts='known_hosts')  # connection options to use th
 
 OUTPUT_FILE_NAME = 'studentServices.txt'
 OUTPUT_FILE_DIRECTORY = '/sftp/studentServices/'
+IGNORED_SCHOOLS = [5]  # school codes from powerschool that will be ignored
 
 # store the guidance counselor names as environment variables for privacy
 WHS_GUIDANCE_1 = os.environ.get('WHS_GUIDANCE_1')
@@ -277,7 +278,11 @@ if __name__ == '__main__':  # main file execution
 
                                 # do the final output to the text file only if there is change in any of the values for the student
                                 if changed:
-                                    print(f'{stuID}\t{counselor}\t{dean}\t{social}\t{psych}\t{counselorEmail}\t{deanEmail}\t{socialEmail}\t{psychEmail}', file=output)
+                                    if school not in IGNORED_SCHOOLS:
+                                        print(f'{stuID}\t{counselor}\t{dean}\t{social}\t{psych}\t{counselorEmail}\t{deanEmail}\t{socialEmail}\t{psychEmail}', file=output)
+                                    else: 
+                                        print(f'WARN: {stuID} is marked that information needs to be changed but will not be because they are in the ignored school code {school}')
+                                        print(f'WARN: {stuID} is marked that information needs to be changed but will not be because they are in the ignored school code {school}', file=log)
 
                             except Exception as er:
                                 print(f'ERROR while processing student {student[0]}: {er}')
