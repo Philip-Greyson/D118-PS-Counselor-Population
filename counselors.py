@@ -144,7 +144,7 @@ if __name__ == '__main__':  # main file execution
                                         psych = WHS_PSYCH_1
                                         psychEmail = WHS_PSYCH_1_EMAIL
                                         # print('DBUG: Student has a last name between B-F', file=log)
-                                    elif (last[0] == 'g'):  # if they are D, we need to check next letter as Da-Dh is one while Di-Dz is another
+                                    elif (last[0] == 'g'):  # if they are G, we need to check next letter as Ga is one while Ge-Gz is another
                                         counselor = WHS_GUIDANCE_2 if (last[1] == 'a') else WHS_GUIDANCE_3  # check second letter
                                         counselorEmail = WHS_GUIDANCE_2_EMAIL if (last[1] == 'a') else WHS_GUIDANCE_3_EMAIL  # check second letter
                                         dean = WHS_DEAN_1
@@ -196,7 +196,7 @@ if __name__ == '__main__':  # main file execution
                                         # print('DBUG: Student has name between S-Z', file=log)
                                     else:  # just in case we get through all possible
                                         counselor = 'ERROR'
-                                        print('ERROR: Student last name processing failed', file=log)
+                                        print(f'ERROR: Student last name processing failed: {last}', file=log)
 
                                     # do an override for academy and ILS students
                                     if isAcademy:
