@@ -32,6 +32,9 @@ OUTPUT_FILE_NAME = 'studentServices.txt'
 OUTPUT_FILE_DIRECTORY = '/sftp/studentServices/'
 IGNORED_SCHOOLS = [5]  # school codes from powerschool that will be ignored
 
+OVERRIDE_BY_GRADE_SCHOOL_ID = []  # school code that will have certain grades be processed even if they are in the ignored school list
+OVERRIDDEN_GRADES = []  # grades to process in the overriden schools
+
 # store the guidance counselor names as environment variables for privacy
 WHS_GUIDANCE_1 = os.environ.get('WHS_GUIDANCE_1')
 WHS_GUIDANCE_1_EMAIL = os.environ.get('WHS_GUIDANCE_1_EMAIL')
@@ -280,9 +283,14 @@ if __name__ == '__main__':  # main file execution
                                 if changed:
                                     if school not in IGNORED_SCHOOLS:
                                         print(f'{stuID}\t{counselor}\t{dean}\t{social}\t{psych}\t{counselorEmail}\t{deanEmail}\t{socialEmail}\t{psychEmail}', file=output)
-                                    else: 
-                                        print(f'WARN: {stuID} is marked that information needs to be changed but will not be because they are in the ignored school code {school}')
-                                        print(f'WARN: {stuID} is marked that information needs to be changed but will not be because they are in the ignored school code {school}', file=log)
+                                    else:
+                                        if school in OVERRIDE_BY_GRADE_SCHOOL_ID and grade in OVERRIDDEN_GRADES:
+                                            print(f'INFO: Student {stuID} would be in an ignored school, but they are in grade {grade} at building {school} so they will be processed') 
+                                            print(f'INFO: Student {stuID} would be in an ignored school, but they are in grade {grade} at building {school} so they will be processed', file=log)
+                                            print(f'{stuID}\t{counselor}\t{dean}\t{social}\t{psych}\t{counselorEmail}\t{deanEmail}\t{socialEmail}\t{psychEmail}', file=output)
+                                        else:
+                                            print(f'WARN: {stuID} is marked that information needs to be changed but will not be because they are in the ignored school code {school}')
+                                            print(f'WARN: {stuID} is marked that information needs to be changed but will not be because they are in the ignored school code {school}', file=log)
 
                             except Exception as er:
                                 print(f'ERROR while processing student {student[0]}: {er}')
